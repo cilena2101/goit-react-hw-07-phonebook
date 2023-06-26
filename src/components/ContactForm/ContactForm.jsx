@@ -1,15 +1,14 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
-import { useDispatch, useSelector } from 'react-redux';
-import { getContacts, addContact } from '../../redux/slice';
+import { useFetchContactsQuery, useAddContactMutation, } from '../../redux/contactsSlice';
 
 import './ContactForm.module.css';
 
 export const ContactForm = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+  const [phone, setNumber] = useState('');
+
+  const { data: contacts } = useFetchContactsQuery();
+  const [addContact] = useAddContactMutation();
 
   const handleChange = event => {
     const { name, value } = event.target;
@@ -25,23 +24,18 @@ export const ContactForm = () => {
     }
   };
 
-    const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
-    
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    };
 
+    const contact = { name, phone };
     const enterContacts = contacts.some(
       contact =>
-        (contact.name === name.toLowerCase() && contact.number === number) ||
-        contact.number === number
+        (contact.name === name.toLowerCase() && contact.phone === phone) ||
+        contact.phone === phone
     );
     enterContacts
-      ? alert(`${name} or ${number} is already in contacts`)
-      : dispatch(addContact(contact));
+      ? alert(`${name} or ${phone} is already in contacts`)
+      : addContact(contact);
     setName('');
     setNumber('');
   };
@@ -66,7 +60,7 @@ export const ContactForm = () => {
         <input
           type="tel"
           name="number"
-          value={number}
+          value={phone}
           onChange={handleChange}
           placeholder="Enter phone number"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
