@@ -5,6 +5,7 @@ import {
   useFetchContactsQuery,
   useDeleteContactMutation,
 } from '../../redux/contactsSlice';
+import { Loader } from 'components/Loader/Loader';
 
 export const ContactList = () => {
   const filter = useSelector(getFilter);
@@ -12,10 +13,9 @@ export const ContactList = () => {
   const [deleteContact, { isLoading }] = useDeleteContactMutation();
 
   const findContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
-    if (contacts) {
+     if (contacts) {
       return contacts.filter(contact =>
-        contact.name.toLowerCase().includes(normalizedFilter)
+        contact.name.toLowerCase().includes(filter.toLowerCase())
       );
     }
   };
@@ -23,14 +23,14 @@ export const ContactList = () => {
   const filteredContacts = findContacts();
 
   return (
-    <>
-      {isFetching && <p>Loading...</p>}
+    <div className='listContacts'>
+      {isFetching && <Loader/>}
       {contacts && (
-        <ul>
+        <ul >
           {filteredContacts.map(({ id, name, phone }) => {
             return (
               <li key={id}>
-                <div>
+                <div className='contact-item'>
                   <h3>{name}:</h3>
                   <p>{phone}</p>
                 </div>
@@ -41,12 +41,12 @@ export const ContactList = () => {
                   }}
                 >
                   {isLoading ? '...' : 'Delete'}
-                </button>
+                </button>            
               </li>
             );
           })}
         </ul>
       )}
-    </>
+    </div>
   );
 };
